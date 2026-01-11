@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useSidebar } from '@/context/SidebarContext';
 
 interface NavItem {
   label: string;
@@ -31,13 +32,11 @@ const navItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const { collapsed, toggleCollapsed, setHovered, isExpanded } = useSidebar();
   const location = useLocation();
   const { user } = useAuth();
   const { direction } = useTheme();
 
-  const isExpanded = !collapsed || hovered;
   const isRtl = direction === 'rtl';
 
   const filteredNavItems = navItems.filter(
@@ -114,7 +113,7 @@ export function AppSidebar() {
       {/* Collapse Toggle */}
       <div className="p-4 border-t border-sidebar-border">
         <button
-          onClick={() => setCollapsed((prev) => !prev)}
+          onClick={toggleCollapsed}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
         >
           {isRtl ? (

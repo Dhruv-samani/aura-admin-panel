@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { TenantProvider } from "@/context/TenantContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { SpotlightProvider } from "@/context/SpotlightContext";
+import { SidebarProvider } from "@/context/SidebarContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
@@ -26,25 +27,27 @@ const App = () => (
       <TenantProvider>
         <AuthProvider>
           <SpotlightProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route element={<AppLayout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/tenants" element={<Tenants />} />
-                    <Route path="/users" element={<Users />} />
-                    <Route path="/components" element={<ComponentShowcase />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
+            <SidebarProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route element={<AppLayout />}>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/tenants" element={<Tenants />} />
+                      <Route path="/users" element={<Users />} />
+                      <Route path="/components" element={<ComponentShowcase />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </TooltipProvider>
+            </SidebarProvider>
           </SpotlightProvider>
         </AuthProvider>
       </TenantProvider>

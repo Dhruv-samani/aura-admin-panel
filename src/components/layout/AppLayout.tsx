@@ -4,16 +4,25 @@ import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { SpotlightSearch } from '@/components/SpotlightSearch';
 import { useTheme } from '@/context/ThemeContext';
+import { useSidebar } from '@/context/SidebarContext';
 import { cn } from '@/lib/utils';
 
 export function AppLayout() {
   const { direction } = useTheme();
+  const { isExpanded } = useSidebar();
   const isRtl = direction === 'rtl';
 
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar />
-      <div className={cn('transition-all duration-300', isRtl ? 'mr-16 lg:mr-64' : 'ml-16 lg:ml-64')}>
+      <div 
+        className={cn(
+          'transition-all duration-300 ease-in-out',
+          isRtl 
+            ? (isExpanded ? 'mr-64' : 'mr-16')
+            : (isExpanded ? 'ml-64' : 'ml-16')
+        )}
+      >
         <AppHeader />
         <main className="p-6">
           <Outlet />
