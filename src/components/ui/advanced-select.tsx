@@ -20,6 +20,11 @@ interface AdvancedSelectProps {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   className?: string;
+  /**
+   * Optional manual override for max count. 
+   * If not provided, it will auto-calculate based on width.
+   */
+  maxCount?: number;
 }
 
 const sizeClasses = {
@@ -46,12 +51,18 @@ export function AdvancedSelect({
   size = 'md',
   disabled = false,
   className,
+  maxCount: manualMaxCount,
 }: AdvancedSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  // State for dynamic overflow
+  const [visibleCount, setVisibleCount] = useState<number>(Number.MAX_SAFE_INTEGER);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
 
   const selectedValues = useMemo(() => {
     if (!value) return [];
@@ -126,10 +137,100 @@ export function AdvancedSelect({
     setHighlightedIndex(0);
   }, [filteredOptions]);
 
+  // Dynamic calculation of visible chips
+  React.useLayoutEffect(() => {
+    // If manual override is provided or not multiple, skip calculation
+    if (manualMaxCount !== undefined || !multiple) {
+      setVisibleCount(manualMaxCount ?? Number.MAX_SAFE_INTEGER);
+      return;
+    }
+
+    if (!containerRef.current || !measureRef.current) return;
+
+    const calculateVisibleIds = () => {
+      const containerWidth = containerRef.current?.getBoundingClientRect().width || 0;
+      // Reserve space for input (min 60px) + actions (~50px) + padding
+      const reservedWidth = 120;
+      const availableWidth = containerWidth - reservedWidth;
+
+      let currentWidth = 0;
+      let count = 0;
+      const gap = 6; // gap-1.5 is 6px
+
+      // Iterate through the ghost chips to measure real usage
+      const ghostChips = measureRef.current?.children;
+      if (!ghostChips) return;
+
+      for (let i = 0; i < ghostChips.length; i++) {
+        const chipWidth = ghostChips[i].getBoundingClientRect().width;
+        // Check if adding this chip exceeds available width
+        // We also need to consider the "+N" badge width if we cut off (approx 30px)
+        // If it's the LAST one and it fits, good. 
+        // If it doesn't fit, we need room for "+N".
+
+        if (currentWidth + chipWidth > availableWidth) {
+          break;
+        }
+        currentWidth += chipWidth + gap;
+        count++;
+      }
+
+      setVisibleCount(count);
+    };
+
+    calculateVisibleIds();
+
+    const resizeObserver = new ResizeObserver(() => {
+      calculateVisibleIds();
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [selectedValues, multiple, manualMaxCount, size]);
+
   const getOptionLabel = (val: string) => options.find((o) => o.value === val)?.label || val;
+
+  // Determine which values to show
+  const effectiveMaxCount = visibleCount;
+
+  const visibleValues = multiple && selectedValues.length > effectiveMaxCount
+    ? selectedValues.slice(0, effectiveMaxCount)
+    : selectedValues;
+
+  const hiddenCount = multiple && selectedValues.length > effectiveMaxCount
+    ? selectedValues.length - effectiveMaxCount
+    : 0;
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
+      {/* Hidden measurement container (Ghost) */}
+      {multiple && !manualMaxCount && (
+        <div
+          ref={measureRef}
+          className={cn(
+            'fixed opacity-0 pointer-events-none flex gap-1.5',
+            sizeClasses[size] // Match padding/font size for accurate measure
+          )}
+          aria-hidden="true"
+        >
+          {selectedValues.map((val) => (
+            <span
+              key={val}
+              className={cn(
+                'inline-flex items-center gap-1 border', // match border width
+                chipSizeClasses[size]
+              )}
+            >
+              <span className="truncate max-w-[100px]">{getOptionLabel(val)}</span>
+              <X size={12} />
+            </span>
+          ))}
+          {/* Also measure a dummy +99 badge to ensure we reserve enough space? 
+                     We are just using a fixed reservedWidth for simplicity + badge logic above
+                  */}
+        </div>
+      )}
+
       <div
         onClick={() => {
           if (!disabled) {
@@ -138,34 +239,52 @@ export function AdvancedSelect({
           }
         }}
         className={cn(
-          'flex flex-wrap items-center gap-1.5 bg-background border border-input rounded-lg cursor-text transition-colors',
+          'flex flex-nowrap items-center gap-1.5 bg-background border border-input rounded-lg cursor-text transition-colors overflow-hidden',
           isOpen && 'ring-2 ring-ring ring-offset-2 ring-offset-background',
           disabled && 'opacity-50 cursor-not-allowed',
           sizeClasses[size]
         )}
       >
         {/* Chips for selected values */}
-        {multiple && selectedValues.map((val) => (
+        {multiple && visibleValues.map((val) => (
           <span
             key={val}
             className={cn(
-              'inline-flex items-center gap-1 bg-primary text-primary-foreground rounded-md',
+              'inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md border border-primary/20 shrink-0 animate-in fade-in zoom-in duration-200',
               chipSizeClasses[size]
             )}
           >
-            {getOptionLabel(val)}
+            <span className="truncate max-w-[100px]">{getOptionLabel(val)}</span>
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 handleRemove(val);
               }}
-              className="hover:bg-primary-foreground/20 rounded-full p-0.5"
+              className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
             >
               <X size={12} />
             </button>
           </span>
         ))}
+
+        {hiddenCount > 0 && (
+          <span
+            className={cn(
+              'inline-flex items-center justify-center bg-muted text-muted-foreground font-medium rounded-md shrink-0 animate-in fade-in zoom-in duration-200',
+              chipSizeClasses[size]
+            )}
+          >
+            +{hiddenCount}
+          </span>
+        )}
+
+        {/* Single Select Display */}
+        {!multiple && selectedValues.length === 1 && !query && (
+          <span className="absolute left-3 text-sm text-foreground pointer-events-none truncate max-w-[calc(100%-40px)]">
+            {getOptionLabel(selectedValues[0])}
+          </span>
+        )}
 
         {/* Input */}
         <input
@@ -177,11 +296,14 @@ export function AdvancedSelect({
           onFocus={() => setIsOpen(true)}
           placeholder={selectedValues.length === 0 ? placeholder : ''}
           disabled={disabled}
-          className="flex-1 min-w-[60px] bg-transparent outline-none placeholder:text-muted-foreground"
+          className={cn(
+            "flex-1 min-w-[60px] bg-transparent outline-none placeholder:text-muted-foreground z-10",
+            !multiple && selectedValues.length === 1 && !query && "caret-transparent text-transparent" // Hide cursor/text if overlaying
+          )}
         />
 
         {/* Clear & Chevron */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0 ml-auto pl-1">
           {selectedValues.length > 0 && (
             <button
               type="button"
@@ -189,7 +311,7 @@ export function AdvancedSelect({
                 e.stopPropagation();
                 handleClear();
               }}
-              className="p-0.5 hover:bg-muted rounded"
+              className="p-1 hover:bg-muted rounded-full transition-colors"
             >
               <X size={14} className="text-muted-foreground" />
             </button>
@@ -197,7 +319,7 @@ export function AdvancedSelect({
           <ChevronDown
             size={16}
             className={cn(
-              'text-muted-foreground transition-transform',
+              'text-muted-foreground transition-transform duration-200',
               isOpen && 'rotate-180'
             )}
           />

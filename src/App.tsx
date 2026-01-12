@@ -9,15 +9,17 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SpotlightProvider } from "@/context/SpotlightContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { AppLayout } from "@/components/layout/AppLayout";
-import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
-import Tenants from "@/pages/Tenants";
-import Users from "@/pages/Users";
 import ComponentShowcase from "@/pages/ComponentShowcase";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
+import Login from "@/pages/auth/login";
+import Signup from "@/pages/auth/signup";
 import NotFound from "@/pages/NotFound";
+import UsersPage from "@/pages/system/user";
+import RolesPage from "@/pages/system/role";
+import CreateUserPage from "@/pages/system/user/create";
+import CreateRolePage from "@/pages/system/role/create";
+import Dashboard from "./pages/dashboard";
 
 const queryClient = new QueryClient();
 
@@ -39,9 +41,11 @@ const App = () => (
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/settings" element={<Settings />} />
-                      <Route path="/tenants" element={<Tenants />} />
-                      <Route path="/users" element={<Users />} />
                       <Route path="/components" element={<ComponentShowcase />} />
+                      <Route path="/system/users" element={<UsersPage />} />
+                      <Route path="/system/users/create" element={<CreateUserPage />} />
+                      <Route path="/system/roles" element={<RolesPage />} />
+                      <Route path="/system/roles/create" element={<CreateRolePage />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />
                   </Routes>

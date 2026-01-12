@@ -59,7 +59,7 @@ export function AppHeader() {
         {/* Right Actions */}
         <div className="flex items-center gap-2">
           {/* Tenant Selector */}
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
               <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground text-xs font-medium">
                 {currentTenant?.name.charAt(0)}
@@ -83,7 +83,7 @@ export function AppHeader() {
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
 
           {/* RTL Toggle */}
           <button

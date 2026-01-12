@@ -13,6 +13,8 @@ import {
   Plus,
   Palette,
   Component,
+  Shield,
+  UserCog,
 } from 'lucide-react';
 import { useSpotlight } from '@/context/SpotlightContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -32,6 +34,8 @@ const spotlightItems: SpotlightItem[] = [
   { id: 'dashboard', label: 'Dashboard', description: 'View analytics and metrics', icon: <LayoutDashboard size={18} />, type: 'page', route: '/' },
   { id: 'profile', label: 'Profile', description: 'Manage your account', icon: <User size={18} />, type: 'page', route: '/profile' },
   { id: 'users', label: 'User Management', description: 'Manage users and roles', icon: <Users size={18} />, type: 'page', route: '/users' },
+  { id: 'system-users', label: 'System > Users', description: 'Manage system users', icon: <UserCog size={18} />, type: 'page', route: '/system/users' },
+  { id: 'system-roles', label: 'System > Roles', description: 'Manage system roles', icon: <Shield size={18} />, type: 'page', route: '/system/roles' },
   { id: 'tenants', label: 'Tenants', description: 'Manage tenant organizations', icon: <Building2 size={18} />, type: 'page', route: '/tenants' },
   { id: 'settings', label: 'Settings', description: 'Theme, palette, and preferences', icon: <Settings size={18} />, type: 'page', route: '/settings' },
   { id: 'components', label: 'Component Showcase', description: 'Browse UI components', icon: <Component size={18} />, type: 'page', route: '/components' },
@@ -47,6 +51,7 @@ export function SpotlightSearch() {
   const listRef = useRef<HTMLDivElement>(null);
 
   const actionItems: SpotlightItem[] = useMemo(() => [
+    { id: 'create-role', label: 'Create Role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/system/roles/create') },
     { id: 'toggle-theme', label: `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`, icon: theme === 'light' ? <Moon size={18} /> : <Sun size={18} />, type: 'action', action: toggleTheme },
     { id: 'toggle-rtl', label: `Switch to ${direction === 'ltr' ? 'RTL' : 'LTR'}`, icon: <Languages size={18} />, type: 'action', action: toggleDirection },
     { id: 'create-tenant', label: 'Create New Tenant', icon: <Plus size={18} />, type: 'action', action: () => navigate('/tenants?action=create') },
