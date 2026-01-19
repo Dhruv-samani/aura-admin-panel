@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { AppSidebar } from './AppSidebar';
+import { DynamicSidebar } from './DynamicSidebar';
 import { AppHeader } from './AppHeader';
 import { SpotlightSearch } from '@/components/SpotlightSearch';
 import { useTheme } from '@/context/ThemeContext';
@@ -14,11 +14,11 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar />
-      <div 
+      <DynamicSidebar />
+      <div
         className={cn(
           'transition-all duration-300 ease-in-out',
-          isRtl 
+          isRtl
             ? (isExpanded ? 'mr-64' : 'mr-16')
             : (isExpanded ? 'ml-64' : 'ml-16')
         )}

@@ -33,7 +33,7 @@ export default function RolePage() {
                         Manage system roles and their access permissions.
                     </p>
                 </div>
-                <Button onClick={() => navigate('/system/roles/create')}>
+                <Button onClick={() => navigate('/brand/team/roles/create')}>
                     <Plus className="mr-2 h-4 w-4" /> Create Role
                 </Button>
             </div>

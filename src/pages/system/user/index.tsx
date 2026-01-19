@@ -53,7 +53,7 @@ export default function UserPage() {
                         Manage system users and their roles.
                     </p>
                 </div>
-                <Button onClick={() => navigate('/system/users/create')}>
+                <Button onClick={() => navigate('/brand/team/users/create')}>
                     <Plus size={18} className="mr-2" />
                     Add User
                 </Button>

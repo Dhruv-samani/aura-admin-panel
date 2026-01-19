@@ -10,6 +10,7 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function Login() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await login(email, password);
+            await login(email, password, rememberMe);
             navigate('/');
         } finally {
             setIsLoading(false);
@@ -79,13 +80,18 @@ export default function Login() {
                     </div>
 
                     <div className="flex items-center justify-between text-sm">
-                        <label className="flex items-center gap-2 text-muted-foreground">
-                            <input type="checkbox" className="rounded border-input" />
+                        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="rounded border-input"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                            />
                             Remember me
                         </label>
-                        <a href="#" className="text-primary hover:underline">
+                        <Link to="/forgot-password" className="text-primary hover:underline">
                             Forgot password?
-                        </a>
+                        </Link>
                     </div>
 
                     <Button type="submit" className="w-full" disabled={isLoading}>

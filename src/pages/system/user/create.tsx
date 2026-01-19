@@ -20,13 +20,13 @@ export default function CreateUserPage() {
         <div className="p-6 space-y-6 h-[calc(100vh-4rem)] flex flex-col">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/system/users')}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/brand/team/users')}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-2xl font-bold tracking-tight">Add New User</h1>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => navigate('/system/users')}>Cancel</Button>
+                    <Button variant="outline" onClick={() => navigate('/brand/team/users')}>Cancel</Button>
                     <Button>Create User</Button>
                 </div>
             </div>
