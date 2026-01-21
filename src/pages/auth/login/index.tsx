@@ -1,10 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+
+// Development credentials for quick testing
+const DEV_CREDENTIALS = {
+    brand: {
+        email: 'brand@example.com',
+        password: 'password123',
+        label: 'Brand Admin'
+    },
+    agency: {
+        email: 'agency@example.com',
+        password: 'password123',
+        label: 'Agency Admin'
+    },
+    owner: {
+        email: 'owner@example.com',
+        password: 'password123',
+        label: 'Owner Admin'
+    }
+};
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -12,8 +32,16 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedAdminType, setSelectedAdminType] = useState<'brand' | 'agency' | 'owner'>('brand');
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    // Auto-fill credentials when admin type changes
+    useEffect(() => {
+        const credentials = DEV_CREDENTIALS[selectedAdminType];
+        setEmail(credentials.email);
+        setPassword(credentials.password);
+    }, [selectedAdminType]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,6 +68,33 @@ export default function Login() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 shadow-soft space-y-4">
+                    {/* Quick Select Admin Type - Development Only */}
+                    <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            Quick Select (Dev Mode)
+                        </Label>
+                        <RadioGroup value={selectedAdminType} onValueChange={(value) => setSelectedAdminType(value as 'brand' | 'agency' | 'owner')}>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="brand" id="brand" />
+                                <Label htmlFor="brand" className="cursor-pointer font-normal">
+                                    {DEV_CREDENTIALS.brand.label}
+                                </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="agency" id="agency" />
+                                <Label htmlFor="agency" className="cursor-pointer font-normal">
+                                    {DEV_CREDENTIALS.agency.label}
+                                </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="owner" id="owner" />
+                                <Label htmlFor="owner" className="cursor-pointer font-normal">
+                                    {DEV_CREDENTIALS.owner.label}
+                                </Label>
+                            </div>
+                        </RadioGroup>
+                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <div className="relative">

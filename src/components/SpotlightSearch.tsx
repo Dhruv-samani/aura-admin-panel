@@ -16,9 +16,13 @@ import {
   Shield,
   UserCog,
 } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { useSpotlight } from '@/context/SpotlightContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useModules } from '@/hooks/useModules';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { ModuleConfig } from '@/types/admin.types';
 
 interface SpotlightItem {
   id: string;
@@ -30,36 +34,70 @@ interface SpotlightItem {
   route?: string;
 }
 
-const spotlightItems: SpotlightItem[] = [
-  { id: 'dashboard', label: 'Dashboard', description: 'View analytics and metrics', icon: <LayoutDashboard size={18} />, type: 'page', route: '/' },
-  { id: 'profile', label: 'Profile', description: 'Manage your account', icon: <User size={18} />, type: 'page', route: '/profile' },
-  { id: 'users', label: 'User Management', description: 'Manage users and roles', icon: <Users size={18} />, type: 'page', route: '/users' },
-  { id: 'system-users', label: 'System > Users', description: 'Manage system users', icon: <UserCog size={18} />, type: 'page', route: '/system/users' },
-  { id: 'system-roles', label: 'System > Roles', description: 'Manage system roles', icon: <Shield size={18} />, type: 'page', route: '/system/roles' },
-  { id: 'tenants', label: 'Tenants', description: 'Manage tenant organizations', icon: <Building2 size={18} />, type: 'page', route: '/tenants' },
-  { id: 'settings', label: 'Settings', description: 'Theme, palette, and preferences', icon: <Settings size={18} />, type: 'page', route: '/settings' },
-  { id: 'components', label: 'Component Showcase', description: 'Browse UI components', icon: <Component size={18} />, type: 'page', route: '/components' },
-];
+// Helper to get icon component from string name
+const getIconComponent = (iconName: string): React.ReactNode => {
+  const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<{ size?: number }> | undefined;
+  return IconComponent ? <IconComponent size={18} /> : <Component size={18} />;
+};
+
+// Convert modules to spotlight items recursively
+const moduleToSpotlightItems = (modules: ModuleConfig[], parentLabel?: string): SpotlightItem[] => {
+  const items: SpotlightItem[] = [];
+
+  modules.forEach(module => {
+    const label = parentLabel ? `${parentLabel} > ${module.name}` : module.name;
+
+    items.push({
+      id: module.id,
+      label,
+      description: `Navigate to ${module.name}`,
+      icon: getIconComponent(module.icon),
+      type: 'page',
+      route: module.path,
+    });
+
+    // Recursively add children
+    if (module.children && module.children.length > 0) {
+      items.push(...moduleToSpotlightItems(module.children, module.name));
+    }
+  });
+
+  return items;
+};
 
 export function SpotlightSearch() {
   const { isOpen, close } = useSpotlight();
   const { toggleTheme, theme, toggleDirection, direction, setPalette } = useTheme();
+  const { modules } = useModules();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const actionItems: SpotlightItem[] = useMemo(() => [
-    { id: 'create-role', label: 'Create Role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/system/roles/create') },
-    { id: 'toggle-theme', label: `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`, icon: theme === 'light' ? <Moon size={18} /> : <Sun size={18} />, type: 'action', action: toggleTheme },
-    { id: 'toggle-rtl', label: `Switch to ${direction === 'ltr' ? 'RTL' : 'LTR'}`, icon: <Languages size={18} />, type: 'action', action: toggleDirection },
-    { id: 'create-tenant', label: 'Create New Tenant', icon: <Plus size={18} />, type: 'action', action: () => navigate('/tenants?action=create') },
-    { id: 'add-user', label: 'Add New User', icon: <Plus size={18} />, type: 'action', action: () => navigate('/users?action=create') },
-    { id: 'palette-green', label: 'Set Green Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('green') },
-    { id: 'palette-blue', label: 'Set Blue Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('blue') },
-    { id: 'palette-violet', label: 'Set Violet Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('violet') },
-  ], [theme, direction, toggleTheme, toggleDirection, navigate, setPalette]);
+  // Generate spotlight items from modules
+  const spotlightItems = useMemo(() => moduleToSpotlightItems(modules), [modules]);
+
+  const actionItems: SpotlightItem[] = useMemo(() => {
+    const actions: SpotlightItem[] = [
+      { id: 'toggle-theme', label: `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`, icon: theme === 'light' ? <Moon size={18} /> : <Sun size={18} />, type: 'action', action: toggleTheme },
+      { id: 'toggle-rtl', label: `Switch to ${direction === 'ltr' ? 'RTL' : 'LTR'}`, icon: <Languages size={18} />, type: 'action', action: toggleDirection },
+      { id: 'palette-green', label: 'Set Green Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('green') },
+      { id: 'palette-blue', label: 'Set Blue Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('blue') },
+      { id: 'palette-violet', label: 'Set Violet Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('violet') },
+    ];
+
+    // Add admin-type specific actions
+    if (user?.adminType === 'brand') {
+      actions.push(
+        { id: 'add-user', label: 'Add New User', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/users/create') },
+        { id: 'create-role', label: 'Create Role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/roles/create') },
+      );
+    }
+
+    return actions;
+  }, [theme, direction, toggleTheme, toggleDirection, navigate, setPalette, user]);
 
   const allItems = useMemo(() => [...spotlightItems, ...actionItems], [actionItems]);
 

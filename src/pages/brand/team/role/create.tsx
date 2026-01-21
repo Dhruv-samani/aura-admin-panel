@@ -34,10 +34,10 @@ export default function CreateRolePage() {
 
     // Helper to get data at a specific path
     const getDataAtPath = (path: string[], currentData: RoleNode): RoleNode | boolean | null => {
-        let current: any = currentData;
+        let current: RoleNode | boolean = currentData;
         for (const key of path) {
             if (current && typeof current === 'object' && key in current) {
-                current = current[key];
+                current = (current as RoleNode)[key] as RoleNode | boolean;
             } else {
                 return null;
             }
@@ -49,14 +49,14 @@ export default function CreateRolePage() {
 
     const handlePermissionChange = (path: string[], checked: boolean) => {
         setRolesState((prevState) => {
-            const newState = JSON.parse(JSON.stringify(prevState));
-            let current: any = newState;
+            const newState = JSON.parse(JSON.stringify(prevState)) as RoleNode;
+            let current: Record<string, RoleNode | boolean | undefined> = newState;
             // Navigate to parent
             const parentPath = path.slice(0, -1);
             const key = path[path.length - 1];
 
             for (const p of parentPath) {
-                current = current[p];
+                current = current[p] as Record<string, RoleNode | boolean | undefined>;
             }
             current[key] = checked;
             return newState;
@@ -64,32 +64,32 @@ export default function CreateRolePage() {
     };
 
     // recursive helper to check/uncheck all
-    const toggleAll = (path: string[], data: any, checked: boolean) => {
+    const toggleAll = (path: string[], data: RoleNode | boolean, checked: boolean) => {
         setRolesState((prevState) => {
-            const newState = JSON.parse(JSON.stringify(prevState));
+            const newState = JSON.parse(JSON.stringify(prevState)) as RoleNode;
 
-            const setRecursive = (obj: any, val: boolean) => {
+            const setRecursive = (obj: Record<string, RoleNode | boolean | undefined>, val: boolean) => {
                 Object.keys(obj).forEach(k => {
                     const value = obj[k];
                     if (typeof value === 'boolean') {
                         obj[k] = val;
                     } else if (typeof value === 'object' && value !== null) {
                         if ('checked' in value) {
-                            value.checked = val;
+                            (value as RoleNode).checked = val;
                         }
                         if ('children' in value) {
-                            setRecursive(value.children, val);
+                            setRecursive((value as RoleNode).children as Record<string, RoleNode | boolean | undefined>, val);
                         } else {
                             // Folders might just have nesting
-                            setRecursive(value, val);
+                            setRecursive(value as Record<string, RoleNode | boolean | undefined>, val);
                         }
                     }
                 });
             }
 
-            let current: any = newState;
+            let current: Record<string, RoleNode | boolean | undefined> = newState;
             for (const p of path) {
-                current = current[p];
+                current = current[p] as Record<string, RoleNode | boolean | undefined>;
             }
 
             setRecursive(current, checked);
@@ -253,7 +253,7 @@ export default function CreateRolePage() {
         isRoot = false,
         lastChild = false
     }: {
-        data: any;
+        data: RoleNode | boolean;
         path: string[];
         isRoot?: boolean;
         lastChild?: boolean;

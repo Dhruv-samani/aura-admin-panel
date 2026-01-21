@@ -144,14 +144,34 @@ export function AppSidebar() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          onClick={() => { toggleCollapsed(); toggleMenu(item.label); }}
                           className="flex items-center justify-center py-2.5 rounded-lg text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer"
                         >
                           {item.icon}
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side={isRtl ? "left" : "right"}>
-                        {item.label}
+                      <TooltipContent side={isRtl ? "left" : "right"} className="p-0 min-w-[200px]">
+                        <div className="py-2">
+                          <div className="px-3 py-2 text-sm font-semibold text-sidebar-foreground border-b border-sidebar-border/50">
+                            {item.label}
+                          </div>
+                          <div className="py-1 space-y-0.5">
+                            {item.children!.map((child) => (
+                              <NavLink
+                                key={child.href}
+                                to={child.href}
+                                className={({ isActive }) => cn(
+                                  'flex items-center gap-2 px-3 py-2 text-sm transition-colors',
+                                  isActive
+                                    ? 'bg-sidebar-accent text-sidebar-foreground font-medium'
+                                    : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                                )}
+                              >
+                                <span className="w-1 h-1 rounded-full bg-current opacity-50" />
+                                {child.label}
+                              </NavLink>
+                            ))}
+                          </div>
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   )}

@@ -41,11 +41,11 @@ import AgencyDashboard from "@/pages/agency/dashboard";
 import AgencyBrands from "@/pages/agency/brands";
 import { AgencyTemplates, AgencyReports, AgencySettings, AgencyWhiteLabel, AgencyTeam, AgencyBilling, AgencyCompliance, AgencyDangerZone } from "@/pages/agency/placeholders";
 
-// System Pages (for Brand Admin Team & Access)
-import UsersPage from "@/pages/system/user";
-import CreateUserPage from "@/pages/system/user/create";
-import RolesPage from "@/pages/system/role";
-import CreateRolePage from "@/pages/system/role/create";
+// Brand Admin Team Pages (Users & Roles)
+import UsersPage from "@/pages/brand/team/user";
+import CreateUserPage from "@/pages/brand/team/user/create";
+import RolesPage from "@/pages/brand/team/role";
+import CreateRolePage from "./pages/brand/team/role/create";
 
 const queryClient = new QueryClient();
 
