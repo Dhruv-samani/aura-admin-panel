@@ -9,7 +9,9 @@ import {
   Palette,
   LogOut,
 } from 'lucide-react';
-import { useTheme, Palette as PaletteType } from '@/context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
+import { availablePalettes } from '@/config/settings-registry';
 import { useTenant } from '@/context/TenantContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSpotlight } from '@/context/SpotlightContext';
@@ -24,16 +26,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
-const PALETTES: { id: PaletteType; label: string; color: string }[] = [
-  { id: 'green', label: 'Green', color: 'bg-[hsl(152,39%,27%)]' },
-  { id: 'blue', label: 'Blue', color: 'bg-[hsl(217,90%,56%)]' },
-  { id: 'violet', label: 'Violet', color: 'bg-[hsl(262,83%,58%)]' },
-  { id: 'orange', label: 'Orange', color: 'bg-[hsl(25,95%,53%)]' },
-  { id: 'red', label: 'Red', color: 'bg-[hsl(0,84%,60%)]' },
-  { id: 'slate', label: 'Slate', color: 'bg-[hsl(215,16%,47%)]' },
-];
-
 export function AppHeader() {
+  const navigate = useNavigate();
   const { theme, toggleTheme, palette, setPalette, direction, toggleDirection } = useTheme();
   const { tenants, currentTenant, setCurrentTenant } = useTenant();
   const { user, logout } = useAuth();
@@ -111,13 +105,14 @@ export function AppHeader() {
             <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-40">
               <DropdownMenuLabel>Color Palette</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {PALETTES.map((p) => (
+              {availablePalettes.map((p) => (
                 <DropdownMenuItem
                   key={p.id}
                   onClick={() => setPalette(p.id)}
                   className={cn(palette === p.id && 'bg-muted')}
                 >
-                  <div className={cn('w-4 h-4 rounded-full mr-2', p.color)} />
+                  <style dangerouslySetInnerHTML={{ __html: `.palette-preview-${p.id} { background-color: hsl(${p.hsl}); }` }} />
+                  <div className={`w-4 h-4 rounded-full mr-2 palette-preview-${p.id}`} />
                   {p.label}
                 </DropdownMenuItem>
               ))}
@@ -147,7 +142,7 @@ export function AppHeader() {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout} className="text-destructive">
                 <LogOut size={16} className="mr-2" />

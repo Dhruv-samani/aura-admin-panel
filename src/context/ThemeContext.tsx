@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { defaultPalette, isValidPalette, availablePalettes } from '@/config/settings-registry';
 
 export type Theme = 'light' | 'dark';
-export type Palette = 'green' | 'blue' | 'violet' | 'orange' | 'red' | 'slate';
+// Derive Palette type from the registry's available palettes
+export type Palette = string;
 export type Direction = 'ltr' | 'rtl';
 
 interface ThemeContextType {
@@ -35,9 +37,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const [palette, setPaletteState] = useState<Palette>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem(STORAGE_KEYS.palette) as Palette) || 'green';
+      const stored = localStorage.getItem(STORAGE_KEYS.palette);
+      if (stored && isValidPalette(stored)) return stored;
+      return defaultPalette.id;
     }
-    return 'green';
+    return defaultPalette.id;
   });
 
   const [direction, setDirectionState] = useState<Direction>(() => {

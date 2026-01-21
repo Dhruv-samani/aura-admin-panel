@@ -353,13 +353,13 @@ export default function CreateRolePage() {
         <div className="p-6 space-y-6 h-[calc(100vh-4rem)] flex flex-col">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/brand/team/roles')}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/brand/team/role')}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-2xl font-bold tracking-tight">Create Role</h1>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => navigate('/brand/team/roles')}>Cancel</Button>
+                    <Button variant="outline" onClick={() => navigate('/brand/team/role')}>Cancel</Button>
                     <Button>Create Role</Button>
                 </div>
             </div>

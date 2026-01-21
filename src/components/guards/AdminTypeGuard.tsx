@@ -19,7 +19,12 @@ export function AdminTypeGuard({
     redirectTo,
     children,
 }: AdminTypeGuardProps) {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isLoading } = useAuth();
+
+    // Show loading state while checking auth
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
 
     // Not authenticated - redirect to login
     if (!isAuthenticated || !user) {

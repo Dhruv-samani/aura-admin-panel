@@ -64,16 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const loadStoredAuth = () => {
       try {
         const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-        const rememberMe = localStorage.getItem(REMEMBER_ME_KEY) === 'true';
-
-        if (storedAuth && rememberMe) {
+        // Persist session by default as per user request
+        if (storedAuth) {
           const parsedUser = JSON.parse(storedAuth) as AdminUser;
           setUser(parsedUser);
         }
       } catch (error) {
         console.error('Failed to load stored auth:', error);
         localStorage.removeItem(AUTH_STORAGE_KEY);
-        localStorage.removeItem(REMEMBER_ME_KEY);
       } finally {
         setIsLoading(false);
       }
@@ -85,10 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Save user to localStorage whenever it changes
   useEffect(() => {
     if (user) {
-      const rememberMe = localStorage.getItem(REMEMBER_ME_KEY) === 'true';
-      if (rememberMe) {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-      }
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
     } else {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }

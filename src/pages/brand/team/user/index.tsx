@@ -1,147 +1,185 @@
 import React, { useState, useMemo } from 'react';
-import { Users as UsersIcon, Plus, MoreHorizontal, Edit, Trash2, Mail, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useNavigate } from 'react-router-dom';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TableHeader, TablePagination } from '@/components/table';
+import {
+    Plus,
+    CheckCircle2,
+    XCircle,
+} from 'lucide-react';
+import { TableHeader as TableHeaderComponent, RowActions } from '@/components/table';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
-
-interface UserItem {
-    id: string;
-    name: string;
-    email: string;
-    role: 'admin' | 'manager' | 'user';
-    status: 'active' | 'inactive';
-}
-
-const mockUsers: UserItem[] = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'admin', status: 'active' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'manager', status: 'active' },
-    { id: '3', name: 'Bob Johnson', email: 'bob@example.com', role: 'user', status: 'active' },
-    { id: '4', name: 'Alice Brown', email: 'alice@example.com', role: 'user', status: 'inactive' },
-    { id: '5', name: 'Charlie Wilson', email: 'charlie@example.com', role: 'manager', status: 'active' },
-    { id: '6', name: 'David Lee', email: 'david@example.com', role: 'user', status: 'active' },
-    { id: '7', name: 'Emma Davis', email: 'emma@example.com', role: 'manager', status: 'active' },
-    { id: '8', name: 'Frank Miller', email: 'frank@example.com', role: 'user', status: 'inactive' },
-    { id: '9', name: 'Grace Taylor', email: 'grace@example.com', role: 'admin', status: 'active' },
-    { id: '10', name: 'Henry Anderson', email: 'henry@example.com', role: 'user', status: 'active' },
-    { id: '11', name: 'Ivy Martinez', email: 'ivy@example.com', role: 'manager', status: 'active' },
-    { id: '12', name: 'Jack Robinson', email: 'jack@example.com', role: 'user', status: 'active' },
-];
-
-const roleBadgeVariants: Record<string, 'default' | 'secondary' | 'outline'> = {
-    admin: 'default',
-    manager: 'secondary',
-    user: 'outline',
-};
+import { userService, type User } from '@/services/userService';
+import { DataTable } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 export default function UserPage() {
     const navigate = useNavigate();
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const [entriesPerPage, setEntriesPerPage] = useState(10);
+    // Users state
+    const [users, setUsers] = useState<User[]>(() => userService.getUsers());
 
     // Search state
     const [search, setSearch] = useState('');
 
     // Selection state
-    const [selectedRows, setSelectedRows] = useState<string[]>([]);
+    const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
     // Delete confirmation state
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
-    // Filter users based on search
-    const filteredUsers = useMemo(() => {
-        return mockUsers.filter(
-            (u) => u.name.toLowerCase().includes(search.toLowerCase()) ||
-                u.email.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [search]);
-
-    // Calculate pagination
-    const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const endIndex = startIndex + entriesPerPage;
-    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
-
-    // Reset to page 1 when search or entries per page changes
     const handleSearchChange = (value: string) => {
         setSearch(value);
-        setCurrentPage(1);
-    };
-
-    const handleEntriesChange = (value: number) => {
-        setEntriesPerPage(value);
-        setCurrentPage(1);
-    };
-
-    // Row selection handlers
-    const handleSelectAll = (checked: boolean) => {
-        if (checked) {
-            setSelectedRows(paginatedUsers.map(u => u.id));
-        } else {
-            setSelectedRows([]);
-        }
-    };
-
-    const handleSelectRow = (userId: string, checked: boolean) => {
-        if (checked) {
-            setSelectedRows([...selectedRows, userId]);
-        } else {
-            setSelectedRows(selectedRows.filter(id => id !== userId));
-        }
     };
 
     const handleDeleteClick = () => {
         setDeleteConfirmOpen(true);
     };
 
-    const handleDeleteSingle = (userId: string, userName: string) => {
+    const handleDeleteSingle = (userId: string) => {
         setUserToDelete(userId);
         setDeleteConfirmOpen(true);
     };
 
     const handleConfirmDelete = () => {
         if (userToDelete) {
-            // Delete single user
-            console.log('Deleting user:', userToDelete);
+            userService.deleteUser(userToDelete);
             setUserToDelete(null);
         } else {
-            // Delete multiple users
-            console.log('Deleting users:', selectedRows);
-            setSelectedRows([]);
+            const selectedIds = Object.keys(selectedRows);
+            userService.deleteUsers(selectedIds);
+            setSelectedRows({});
         }
+        setUsers(userService.getUsers());
+        setDeleteConfirmOpen(false);
     };
 
-    // Get delete confirmation message
+    // Define columns
+    const columns: ColumnDef<User>[] = [
+        {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected()
+                            ? true
+                            : table.getIsSomePageRowsSelected()
+                                ? "indeterminate"
+                                : false
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        {
+            accessorKey: "name",
+            header: "User",
+            cell: ({ row }) => {
+                const user = row.original;
+                return (
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
+                            {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p className="font-medium text-foreground">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            accessorKey: "role",
+            header: "Role",
+            cell: ({ row }) => {
+                const role = row.getValue("role") as string;
+                return (
+                    <Badge variant="outline" className="capitalize font-normal">
+                        {role}
+                    </Badge>
+                );
+            }
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const status = row.getValue("status") as string;
+                return (
+                    <div className="flex items-center gap-2">
+                        {status === 'active' ? (
+                            <CheckCircle2 size={16} className="text-green-500" />
+                        ) : (
+                            <XCircle size={16} className="text-muted-foreground" />
+                        )}
+                        <span className={`text-sm ${status === 'active' ? 'text-green-600' : 'text-muted-foreground'} capitalize`}>
+                            {status}
+                        </span>
+                    </div>
+                );
+            }
+        },
+        {
+            id: "actions",
+            header: () => <div className="text-right">Actions</div>,
+            cell: ({ row }) => {
+                const user = row.original;
+                return (
+                    <RowActions
+                        onEdit={() => navigate(`/brand/team/user/create?id=${user.id}&action=edit`)}
+                        onDelete={() => handleDeleteSingle(user.id)}
+                        onView={() => navigate(`/brand/team/user/create?id=${user.id}&action=view`)}
+                    />
+                );
+            },
+        },
+    ];
+
+    // Filter data for search
+    const filteredData = useMemo(() => {
+        if (!search) return users;
+        return users.filter(user =>
+            user.name.toLowerCase().includes(search.toLowerCase()) ||
+            user.email.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [users, search]);
+
     const getDeleteMessage = () => {
         if (userToDelete) {
-            const user = mockUsers.find(u => u.id === userToDelete);
+            const user = users.find(u => u.id === userToDelete);
             return {
                 title: 'Delete User',
                 description: `Are you sure you want to delete ${user?.name}? This action cannot be undone.`,
             };
         }
+        const selectedCount = Object.keys(selectedRows).length;
         return {
             title: 'Delete Users',
-            description: `Are you sure you want to delete ${selectedRows.length} selected user${selectedRows.length > 1 ? 's' : ''}? This action cannot be undone.`,
+            description: `Are you sure you want to delete ${selectedCount} selected user${selectedCount > 1 ? 's' : ''}? This action cannot be undone.`,
         };
     };
 
     const deleteMessage = getDeleteMessage();
-
-    const allSelected = paginatedUsers.length > 0 && paginatedUsers.every(u => selectedRows.includes(u.id));
-    const someSelected = paginatedUsers.some(u => selectedRows.includes(u.id)) && !allSelected;
+    const selectedIds = Object.keys(selectedRows);
 
     return (
         <div className="space-y-6 pt-4">
@@ -149,132 +187,35 @@ export default function UserPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">User Management</h1>
-                    {/* <p className="text-muted-foreground mt-1">
-                        Manage system users and their roles.
-                    </p> */}
                 </div>
             </div>
 
             {/* Table Header with Search, Entries, Delete, Add */}
-            <TableHeader
-                entriesPerPage={entriesPerPage}
-                onEntriesChange={handleEntriesChange}
+            <TableHeaderComponent
+                entriesPerPage={2} // Driven by DataTable internal default, but component needs prop
+                onEntriesChange={() => { }} // DataTable has internal pagination, or we could lift state
                 searchValue={search}
                 onSearchChange={handleSearchChange}
                 searchPlaceholder="Search users..."
                 showDelete={true}
-                deleteDisabled={selectedRows.length === 0}
+                deleteDisabled={selectedIds.length === 0}
                 onDelete={handleDeleteClick}
                 actionButton={{
                     label: 'Add User',
-                    onClick: () => navigate('/brand/team/users/create'),
+                    onClick: () => navigate('/brand/team/user/create'),
                     icon: <Plus size={18} />,
                 }}
             />
 
-            {/* Users Table */}
-            <div className="bg-card rounded-xl border border-border shadow-soft overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-border bg-muted/50">
-                                <th className="px-5 py-3 w-[50px]">
-                                    <Checkbox
-                                        checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                                        onCheckedChange={handleSelectAll}
-                                        aria-label="Select all"
-                                    />
-                                </th>
-                                <th className="text-start px-5 py-3 text-sm font-medium text-muted-foreground">User</th>
-                                <th className="text-start px-5 py-3 text-sm font-medium text-muted-foreground">Role</th>
-                                <th className="text-start px-5 py-3 text-sm font-medium text-muted-foreground">Status</th>
-                                <th className="text-end px-5 py-3 text-sm font-medium text-muted-foreground">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedUsers.map((user) => (
-                                <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                                    <td className="px-5 py-4">
-                                        <Checkbox
-                                            checked={selectedRows.includes(user.id)}
-                                            onCheckedChange={(checked) => handleSelectRow(user.id, checked as boolean)}
-                                            aria-label={`Select ${user.name}`}
-                                        />
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarFallback className="bg-primary/10 text-primary">
-                                                    {user.name.split(' ').map((n) => n[0]).join('')}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-medium text-foreground">{user.name}</p>
-                                                <p className="text-sm text-muted-foreground">{user.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <Badge variant={roleBadgeVariants[user.role]} className="capitalize">
-                                            <Shield size={12} className="mr-1" />
-                                            {user.role}
-                                        </Badge>
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <Badge variant={user.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                                            {user.status}
-                                        </Badge>
-                                    </td>
-                                    <td className="px-5 py-4 text-end">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreHorizontal size={18} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>
-                                                    <Edit size={16} className="mr-2" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <Mail size={16} className="mr-2" />
-                                                    Send Email
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-destructive"
-                                                    onClick={() => handleDeleteSingle(user.id, user.name)}
-                                                >
-                                                    <Trash2 size={16} className="mr-2" />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Empty State */}
-            {filteredUsers.length === 0 && (
-                <div className="text-center py-12">
-                    <UsersIcon size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium text-foreground">No users found</h3>
-                    <p className="text-muted-foreground">Try adjusting your search.</p>
-                </div>
-            )}
-
-            {/* Pagination */}
-            {filteredUsers.length > 0 && (
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
-            )}
+            {/* Data Table */}
+            <DataTable
+                columns={columns}
+                data={filteredData}
+                rowSelection={selectedRows}
+                onRowSelectionChange={setSelectedRows}
+                showPagination={true}
+                pageSize={2}
+            />
 
             {/* Delete Confirmation Modal */}
             <ConfirmationDialog

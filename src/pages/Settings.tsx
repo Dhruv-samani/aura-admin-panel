@@ -1,18 +1,10 @@
 import React from 'react';
 import { Sun, Moon, Languages, Check } from 'lucide-react';
-import { useTheme, Palette } from '@/context/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
+import { availablePalettes } from '@/config/settings-registry';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-
-const PALETTES: { id: Palette; label: string; hsl: string }[] = [
-  { id: 'green', label: 'Green', hsl: '152 39% 27%' },
-  { id: 'blue', label: 'Blue', hsl: '217 90% 56%' },
-  { id: 'violet', label: 'Violet', hsl: '262 83% 58%' },
-  { id: 'orange', label: 'Orange', hsl: '25 95% 53%' },
-  { id: 'red', label: 'Red', hsl: '0 84% 60%' },
-  { id: 'slate', label: 'Slate', hsl: '215 16% 47%' },
-];
 
 export default function Settings() {
   const { theme, setTheme, palette, setPalette, direction, setDirection } = useTheme();
@@ -30,7 +22,7 @@ export default function Settings() {
       {/* Theme Section */}
       <section className="bg-card rounded-xl border border-border p-6 shadow-soft">
         <h2 className="text-lg font-semibold text-foreground mb-4">Appearance</h2>
-        
+
         {/* Theme Toggle */}
         <div className="space-y-4">
           <div className="flex items-center justify-between py-3 border-b border-border">
@@ -110,9 +102,9 @@ export default function Settings() {
         <p className="text-sm text-muted-foreground mb-6">
           Choose your brand color. This will update the entire UI.
         </p>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {PALETTES.map((p) => (
+          {availablePalettes.map((p) => (
             <button
               key={p.id}
               onClick={() => setPalette(p.id)}
@@ -123,9 +115,9 @@ export default function Settings() {
                   : 'border-border hover:border-muted-foreground/30'
               )}
             >
+              <style dangerouslySetInnerHTML={{ __html: `.palette-preview-${p.id} { background-color: hsl(${p.hsl}); }` }} />
               <div
-                className="w-10 h-10 rounded-full shrink-0"
-                style={{ backgroundColor: `hsl(${p.hsl})` }}
+                className={`w-10 h-10 rounded-full shrink-0 palette-preview-${p.id}`}
               />
               <span className="font-medium text-foreground">{p.label}</span>
               {palette === p.id && (

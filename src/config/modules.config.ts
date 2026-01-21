@@ -1,310 +1,236 @@
-import { ModuleConfig, AdminType } from '@/types/admin.types';
-import { PERMISSIONS } from './permissions.config';
+import { ModuleConfig } from '@/types/admin.types';
 
-/**
- * Brand Admin Modules
- */
 export const BRAND_MODULES: ModuleConfig[] = [
   {
-    id: 'brand-dashboard',
+    id: 'dashboard',
     name: 'Dashboard',
     path: '/brand/dashboard',
     icon: 'LayoutDashboard',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_DASHBOARD_VIEW],
   },
   {
-    id: 'brand-settings',
-    name: 'Brand Settings',
-    path: '/brand/settings',
-    icon: 'Settings',
-    adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_SETTINGS_VIEW],
-  },
-  {
-    id: 'brand-whatsapp',
-    name: 'WhatsApp Configuration',
-    path: '/brand/whatsapp',
-    icon: 'MessageSquare',
-    adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_WHATSAPP_VIEW],
-  },
-  {
-    id: 'brand-templates',
-    name: 'Template Requests',
-    path: '/brand/templates',
-    icon: 'FileText',
-    adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_TEMPLATES_VIEW],
-  },
-  {
-    id: 'brand-billing',
-    name: 'Credits & Billing',
-    path: '/brand/billing',
-    icon: 'CreditCard',
-    adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_BILLING_VIEW],
-  },
-  {
-    id: 'brand-team',
-    name: 'Team & Access',
+    id: 'team',
+    name: 'Team',
     path: '/brand/team',
     icon: 'Users',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_TEAM_VIEW],
     children: [
       {
-        id: 'brand-team-users',
+        id: 'users',
         name: 'Users',
-        path: '/brand/team/users',
+        path: '/brand/team/user',
         icon: 'User',
         adminTypes: ['brand'],
-        requiredPermissions: [PERMISSIONS.BRAND_TEAM_VIEW],
       },
       {
-        id: 'brand-team-roles',
+        id: 'roles',
         name: 'Roles',
-        path: '/brand/team/roles',
-        icon: 'ShieldCheck',
+        path: '/brand/team/role',
+        icon: 'Shield',
         adminTypes: ['brand'],
-        requiredPermissions: [PERMISSIONS.BRAND_TEAM_VIEW],
       },
     ],
   },
   {
-    id: 'brand-compliance',
-    name: 'Compliance & Safety',
-    path: '/brand/compliance',
-    icon: 'Shield',
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    path: '/brand/whatsapp',
+    icon: 'MessageCircle',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_COMPLIANCE_VIEW],
   },
   {
-    id: 'brand-webhooks',
-    name: 'Webhooks & API',
+    id: 'templates',
+    name: 'Templates',
+    path: '/brand/templates',
+    icon: 'FileText',
+    adminTypes: ['brand'],
+  },
+  {
+    id: 'webhooks',
+    name: 'Webhooks',
     path: '/brand/webhooks',
     icon: 'Webhook',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_WEBHOOKS_VIEW],
   },
   {
-    id: 'brand-notifications',
-    name: 'Notifications',
-    path: '/brand/notifications',
-    icon: 'Bell',
+    id: 'billing',
+    name: 'Billing',
+    path: '/brand/billing',
+    icon: 'CreditCard',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_NOTIFICATIONS_MANAGE],
   },
   {
-    id: 'brand-danger-zone',
+    id: 'compliance',
+    name: 'Compliance',
+    path: '/brand/compliance',
+    icon: 'FileCheck',
+    adminTypes: ['brand'],
+  },
+  {
+    id: 'settings',
+    name: 'Settings',
+    path: '/brand/settings',
+    icon: 'Settings',
+    adminTypes: ['brand'],
+  },
+  {
+    id: 'danger-zone',
     name: 'Danger Zone',
     path: '/brand/danger-zone',
     icon: 'AlertTriangle',
     adminTypes: ['brand'],
-    requiredPermissions: [PERMISSIONS.BRAND_DANGER_ZONE],
+  },
+  {
+    id: 'notifications',
+    name: 'Notifications',
+    path: '/brand/notifications',
+    icon: 'Bell',
+    adminTypes: ['brand'],
   },
 ];
 
-/**
- * Agency Admin Modules
- */
 export const AGENCY_MODULES: ModuleConfig[] = [
   {
-    id: 'agency-dashboard',
+    id: 'dashboard',
     name: 'Dashboard',
     path: '/agency/dashboard',
     icon: 'LayoutDashboard',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_DASHBOARD_VIEW],
   },
   {
-    id: 'agency-brands',
+    id: 'brands',
     name: 'Brands',
     path: '/agency/brands',
-    icon: 'Building2',
+    icon: 'Building',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_BRANDS_VIEW],
   },
   {
-    id: 'agency-templates',
+    id: 'team',
+    name: 'Team',
+    path: '/agency/team',
+    icon: 'Users',
+    adminTypes: ['agency'],
+  },
+  {
+    id: 'billing',
+    name: 'Billing',
+    path: '/agency/billing',
+    icon: 'CreditCard',
+    adminTypes: ['agency'],
+  },
+  {
+    id: 'whitelabel',
+    name: 'Whitelabel',
+    path: '/agency/whitelabel',
+    icon: 'Palette',
+    adminTypes: ['agency'],
+  },
+  {
+    id: 'reports',
+    name: 'Reports',
+    path: '/agency/reports',
+    icon: 'BarChart',
+    adminTypes: ['agency'],
+  },
+  {
+    id: 'templates',
     name: 'Templates',
     path: '/agency/templates',
     icon: 'FileText',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_TEMPLATES_VIEW],
   },
   {
-    id: 'agency-reports',
-    name: 'Reports',
-    path: '/agency/reports',
-    icon: 'BarChart3',
+    id: 'compliance',
+    name: 'Compliance',
+    path: '/agency/compliance',
+    icon: 'FileCheck',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_REPORTS_VIEW],
   },
   {
-    id: 'agency-settings',
-    name: 'Agency Settings',
+    id: 'settings',
+    name: 'Settings',
     path: '/agency/settings',
     icon: 'Settings',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_SETTINGS_VIEW],
   },
   {
-    id: 'agency-whitelabel',
-    name: 'White-Label Settings',
-    path: '/agency/whitelabel',
-    icon: 'Palette',
-    adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_WHITELABEL_MANAGE],
-  },
-  {
-    id: 'agency-team',
-    name: 'Team & Access',
-    path: '/agency/team',
-    icon: 'Users',
-    adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_TEAM_VIEW],
-  },
-  {
-    id: 'agency-billing',
-    name: 'Billing & Credits',
-    path: '/agency/billing',
-    icon: 'CreditCard',
-    adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_BILLING_VIEW],
-  },
-  {
-    id: 'agency-compliance',
-    name: 'Compliance',
-    path: '/agency/compliance',
-    icon: 'Shield',
-    adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_COMPLIANCE_MANAGE],
-  },
-  {
-    id: 'agency-danger-zone',
+    id: 'danger-zone',
     name: 'Danger Zone',
     path: '/agency/danger-zone',
     icon: 'AlertTriangle',
     adminTypes: ['agency'],
-    requiredPermissions: [PERMISSIONS.AGENCY_DANGER_ZONE],
   },
 ];
 
-/**
- * VaakuOS Owner Admin Modules
- */
 export const OWNER_MODULES: ModuleConfig[] = [
   {
-    id: 'owner-dashboard',
-    name: 'Global Overview',
+    id: 'dashboard',
+    name: 'Dashboard',
     path: '/owner/dashboard',
     icon: 'LayoutDashboard',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_DASHBOARD_VIEW],
   },
   {
-    id: 'owner-agencies',
+    id: 'agencies',
     name: 'Agencies',
     path: '/owner/agencies',
-    icon: 'Building',
+    icon: 'Briefcase',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_AGENCIES_VIEW],
   },
   {
-    id: 'owner-brands',
+    id: 'brands',
     name: 'Brands',
     path: '/owner/brands',
-    icon: 'Building2',
+    icon: 'Building',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_BRANDS_VIEW],
   },
   {
-    id: 'owner-templates',
-    name: 'Template Moderation',
-    path: '/owner/templates',
-    icon: 'FileCheck',
-    adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_TEMPLATES_MODERATE],
-  },
-  {
-    id: 'owner-billing',
-    name: 'Credit Management',
+    id: 'billing',
+    name: 'Billing',
     path: '/owner/billing',
-    icon: 'DollarSign',
+    icon: 'CreditCard',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_BILLING_VIEW],
   },
   {
-    id: 'owner-monitoring',
+    id: 'features',
+    name: 'Features',
+    path: '/owner/features',
+    icon: 'Zap',
+    adminTypes: ['owner'],
+  },
+  {
+    id: 'monitoring',
     name: 'Monitoring',
     path: '/owner/monitoring',
     icon: 'Activity',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_MONITORING_VIEW],
   },
   {
-    id: 'owner-logs',
-    name: 'Logs & Debug',
+    id: 'logs',
+    name: 'Logs',
     path: '/owner/logs',
-    icon: 'FileCode',
+    icon: 'FileText',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_LOGS_VIEW],
   },
   {
-    id: 'owner-features',
-    name: 'Feature Flags',
-    path: '/owner/features',
-    icon: 'Flag',
-    adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_FEATURES_MANAGE],
-  },
-  {
-    id: 'owner-config',
-    name: 'Core Config',
+    id: 'config',
+    name: 'Config',
     path: '/owner/config',
     icon: 'Settings',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_CONFIG_VIEW],
   },
   {
-    id: 'owner-emergency',
-    name: 'Emergency Controls',
+    id: 'emergency',
+    name: 'Emergency',
     path: '/owner/emergency',
     icon: 'AlertOctagon',
     adminTypes: ['owner'],
-    requiredPermissions: [PERMISSIONS.OWNER_EMERGENCY_CONTROLS],
+  },
+  {
+    id: 'templates',
+    name: 'Templates',
+    path: '/owner/templates',
+    icon: 'LayoutTemplate',
+    adminTypes: ['owner'],
   },
 ];
-
-/**
- * Get modules by admin type
- */
-export function getModulesByAdminType(adminType: AdminType): ModuleConfig[] {
-  switch (adminType) {
-    case 'brand':
-      return BRAND_MODULES;
-    case 'agency':
-      return AGENCY_MODULES;
-    case 'owner':
-      return OWNER_MODULES;
-    default:
-      return [];
-  }
-}
-
-/**
- * Find module by path
- */
-export function findModuleByPath(path: string, modules: ModuleConfig[]): ModuleConfig | null {
-  for (const module of modules) {
-    if (module.path === path) {
-      return module;
-    }
-    if (module.children) {
-      const found = findModuleByPath(path, module.children);
-      if (found) return found;
-    }
-  }
-  return null;
-}

@@ -177,21 +177,6 @@ export function DynamicSidebar() {
                     isExpanded ? 'w-64' : 'w-16'
                 )}
             >
-                {/* Collapse Toggle Button */}
-                <button
-                    onClick={toggleCollapsed}
-                    className={cn(
-                        'absolute top-6 z-50 flex h-7 w-7 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-300',
-                        isRtl ? '-left-3.5' : '-right-3.5'
-                    )}
-                >
-                    {isRtl ? (
-                        collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />
-                    ) : (
-                        collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />
-                    )}
-                </button>
-
                 {/* Logo & Admin Type */}
                 <div className="h-16 flex items-center justify-center border-b border-sidebar-border px-4">
                     <div className="flex items-center gap-2 overflow-hidden">
@@ -226,26 +211,54 @@ export function DynamicSidebar() {
                     {modules.map(renderModule)}
                 </nav>
 
-                {/* User Info */}
-                <div className="border-t border-sidebar-border p-4">
-                    <div className="flex items-center gap-2 overflow-hidden">
+                {/* Footer Section: User Info & Collapse Toggle */}
+                <div className="border-t border-sidebar-border p-2 space-y-1">
+                    {/* User Info */}
+                    <div className={cn(
+                        "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                        isExpanded ? "hover:bg-sidebar-accent" : "justify-center"
+                    )}>
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
                             {user?.name.charAt(0).toUpperCase()}
                         </div>
                         <div
                             className={cn(
-                                'transition-all duration-300 min-w-0',
-                                isExpanded ? 'opacity-100' : 'opacity-0 w-0'
+                                'transition-all duration-300 overflow-hidden',
+                                isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'
                             )}
                         >
-                            <div className="text-sm font-medium text-sidebar-foreground truncate">
+                            <div className="text-sm font-medium text-sidebar-foreground truncate max-w-[150px]">
                                 {user?.name}
                             </div>
-                            <div className="text-xs text-sidebar-muted truncate">
+                            <div className="text-xs text-sidebar-muted truncate max-w-[150px]">
                                 {user?.role}
                             </div>
                         </div>
                     </div>
+
+                    {/* Collapse Toggle */}
+                    <button
+                        onClick={toggleCollapsed}
+                        className={cn(
+                            "w-full flex items-center gap-3 p-2 rounded-lg text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors group",
+                            !isExpanded && "justify-center"
+                        )}
+                    >
+                        <div className="shrink-0 flex items-center justify-center w-5 h-5">
+                            {/* Double Chevron that rotates */}
+                            <div className={cn("transition-transform duration-300", collapsed ? "rotate-180" : "rotate-0")}>
+                                {isRtl ? <Icons.ChevronsRight size={20} /> : <Icons.ChevronsLeft size={20} />}
+                            </div>
+                        </div>
+                        <span
+                            className={cn(
+                                'whitespace-nowrap transition-all duration-300 text-sm font-medium',
+                                isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                            )}
+                        >
+                            Collapse
+                        </span>
+                    </button>
                 </div>
             </aside>
         </TooltipProvider>
