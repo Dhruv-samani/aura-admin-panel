@@ -4,20 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import {
     Plus,
     CheckCircle2,
     XCircle,
+    RefreshCw,
+    Trash2,
 } from 'lucide-react';
 import { TableHeader as TableHeaderComponent, RowActions } from '@/components/table';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { userService, type User } from '@/services/userService';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable, BulkAction } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
 export default function UserPage() {
@@ -35,6 +39,11 @@ export default function UserPage() {
     // Delete confirmation state
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
+
+    // Bulk status change state
+    const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
+    const [usersToChangeStatus, setUsersToChangeStatus] = useState<User[]>([]);
+    const [newStatus, setNewStatus] = useState<'active' | 'inactive'>('active');
 
     const handleSearchChange = (value: string) => {
         setSearch(value);
@@ -60,6 +69,28 @@ export default function UserPage() {
         }
         setUsers(userService.getUsers());
         setDeleteConfirmOpen(false);
+    };
+
+    const handleBulkDelete = (selectedUsers: User[]) => {
+        setUserToDelete(null); // Indicates bulk mode
+        setDeleteConfirmOpen(true);
+    };
+
+    const handleBulkStatusChange = (selectedUsers: User[]) => {
+        setUsersToChangeStatus(selectedUsers);
+        // Default to opposite of first user's status
+        setNewStatus(selectedUsers[0]?.status === 'active' ? 'inactive' : 'active');
+        setStatusChangeDialogOpen(true);
+    };
+
+    const handleConfirmStatusChange = () => {
+        usersToChangeStatus.forEach(user => {
+            userService.updateUser(user.id, { status: newStatus });
+        });
+        setUsers(userService.getUsers());
+        setStatusChangeDialogOpen(false);
+        setUsersToChangeStatus([]);
+        setSelectedRows({});
     };
 
     // Define columns
@@ -181,6 +212,22 @@ export default function UserPage() {
     const deleteMessage = getDeleteMessage();
     const selectedIds = Object.keys(selectedRows);
 
+    // Bulk actions configuration
+    const bulkActions: BulkAction<User>[] = [
+        {
+            label: "Change Status",
+            icon: <RefreshCw size={16} />,
+            onClick: handleBulkStatusChange,
+            variant: "default",
+        },
+        {
+            label: "Delete Selected",
+            icon: <Trash2 size={16} />,
+            onClick: handleBulkDelete,
+            variant: "destructive",
+        },
+    ];
+
     return (
         <div className="space-y-6 pt-4">
             {/* Page Header */}
@@ -213,6 +260,7 @@ export default function UserPage() {
                 data={filteredData}
                 rowSelection={selectedRows}
                 onRowSelectionChange={setSelectedRows}
+                bulkActions={bulkActions}
                 showPagination={true}
                 pageSize={2}
             />
@@ -231,6 +279,44 @@ export default function UserPage() {
                 cancelText="Cancel"
                 variant="destructive"
             />
+
+            {/* Status Change Dialog */}
+            <Dialog open={statusChangeDialogOpen} onOpenChange={setStatusChangeDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Change Status</DialogTitle>
+                        <DialogDescription>
+                            Change the status of {usersToChangeStatus.length} selected user{usersToChangeStatus.length > 1 ? 's' : ''}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 py-4">
+                        <Button
+                            variant={newStatus === 'active' ? 'default' : 'outline'}
+                            className="flex-1"
+                            onClick={() => setNewStatus('active')}
+                        >
+                            <CheckCircle2 size={16} className="mr-2" />
+                            Active
+                        </Button>
+                        <Button
+                            variant={newStatus === 'inactive' ? 'default' : 'outline'}
+                            className="flex-1"
+                            onClick={() => setNewStatus('inactive')}
+                        >
+                            <XCircle size={16} className="mr-2" />
+                            Inactive
+                        </Button>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setStatusChangeDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmStatusChange}>
+                            Update Status
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
