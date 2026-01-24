@@ -222,10 +222,6 @@
     box-shadow: 0 0 20px hsl(var(--brand-primary) / 0.3);
   }
 
-  .animate-in {
-    animation: animate-in 0.2s ease-out;
-  }
-
   .animate-fade-in {
     animation: fade-in 0.15s ease-out;
   }
@@ -236,18 +232,6 @@
 
   .animate-scale-in {
     animation: scale-in 0.2s ease-out;
-  }
-}
-
-@keyframes animate-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
