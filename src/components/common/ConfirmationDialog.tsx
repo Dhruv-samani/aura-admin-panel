@@ -20,6 +20,7 @@ interface ConfirmationDialogProps {
     confirmText?: string;
     cancelText?: string;
     variant?: 'default' | 'destructive';
+    disabled?: boolean;
 }
 
 /**
@@ -35,6 +36,7 @@ interface ConfirmationDialogProps {
  *   description="Are you sure you want to delete John Doe?"
  *   confirmText="Delete"
  *   variant="destructive"
+ *   disabled={isDeleting}
  * />
  */
 export function ConfirmationDialog({
@@ -46,6 +48,7 @@ export function ConfirmationDialog({
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     variant = 'default',
+    disabled = false,
 }: ConfirmationDialogProps) {
     const handleConfirm = () => {
         onConfirm();
@@ -70,6 +73,7 @@ export function ConfirmationDialog({
                     <AlertDialogCancel>{cancelText}</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleConfirm}
+                        disabled={disabled}
                         className={variant === 'destructive' ? 'bg-destructive hover:bg-destructive/90' : ''}
                     >
                         {confirmText}

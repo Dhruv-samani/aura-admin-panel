@@ -41,6 +41,11 @@ interface DataTableProps<TData, TValue> {
     onRowSelectionChange?: (value: RowSelectionState) => void;
     bulkActions?: BulkAction<TData>[];
     isLoading?: boolean;
+    isFetching?: boolean; // For showing loading state during refetch (RTK Query)
+    // Server-side pagination props
+    currentPage?: number; // Current page number (1-indexed)
+    totalPages?: number; // Total number of pages
+    onPageChange?: (page: number) => void; // Callback when page changes
 }
 
 export function DataTable<TData, TValue>({
@@ -54,6 +59,10 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange,
     bulkActions = [],
     isLoading = false,
+    isFetching = false,
+    currentPage,
+    totalPages,
+    onPageChange,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -124,7 +133,12 @@ export function DataTable<TData, TValue>({
         <div className="w-full space-y-4">
             {/* Top Bulk Action Bar - Removed for cleaner design */}
 
-            <div className="rounded-md border border-border bg-card overflow-hidden">
+            <div className={cn("rounded-md border border-border bg-card overflow-hidden", isFetching && "relative")}>
+                {isFetching && !isLoading && (
+                    <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center">
+                        <div className="text-sm text-muted-foreground">Updating...</div>
+                    </div>
+                )}
                 <Table>
                     <TableHeader className="bg-muted/50">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -176,13 +190,21 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
 
-            {showPagination && table.getPageCount() > 0 && (
+            {showPagination && (currentPage && totalPages && onPageChange ? (
+                // Server-side pagination
+                <TablePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            ) : table.getPageCount() > 0 ? (
+                // Client-side pagination
                 <TablePagination
                     currentPage={table.getState().pagination.pageIndex + 1}
                     totalPages={table.getPageCount()}
                     onPageChange={(page) => table.setPageIndex(page - 1)}
                 />
-            )}
+            ) : null)}
 
             {/* Sticky Bottom Bulk Action Bar - Sleek Design */}
             {selectedCount > 0 && bulkActions.length > 0 && (
