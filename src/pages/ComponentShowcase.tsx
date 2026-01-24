@@ -66,6 +66,7 @@ import { ShowcaseSurfaces } from '@/components/showcase/ShowcaseSurfaces';
 import { ShowcaseNavigation } from '@/components/showcase/ShowcaseNavigation';
 import { ShowcaseInteractive } from '@/components/showcase/ShowcaseInteractive';
 import { ShowcaseMedia } from '@/components/showcase/ShowcaseMedia';
+import { ShowcaseBulkActions } from '@/components/showcase/ShowcaseBulkActions';
 
 const departmentOptions: SelectOption[] = [
   { value: 'marketing', label: 'Marketing' },
@@ -139,6 +140,7 @@ export default function ComponentShowcase() {
           <TabsTrigger value="inputs" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Inputs & Forms</TabsTrigger>
           <TabsTrigger value="datetime" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Date & Time</TabsTrigger>
           <TabsTrigger value="data" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Data Display</TabsTrigger>
+          <TabsTrigger value="bulkactions" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Bulk Actions</TabsTrigger>
           <TabsTrigger value="overlays" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Overlays</TabsTrigger>
           <TabsTrigger value="feedback" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Feedback</TabsTrigger>
           <TabsTrigger value="navigation" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-transparent data-[state=active]:border-primary px-4 py-2">Navigation</TabsTrigger>
@@ -735,6 +737,10 @@ export default function ComponentShowcase() {
               <Progress value={progress} className="w-full" />
             </div>
           </section>
+        </TabsContent>
+
+        <TabsContent value="bulkactions">
+          <ShowcaseBulkActions />
         </TabsContent>
 
         <TabsContent value="navigation">
