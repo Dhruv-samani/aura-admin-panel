@@ -4,35 +4,42 @@ import { usePaginationState } from '@/hooks/usePaginationState';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Plus,
-    Shield
-} from 'lucide-react';
+import { Plus, HelpCircle } from 'lucide-react';
 import { TableHeader as TableHeaderComponent, RowActions } from '@/components/table';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
-interface RoleItem {
+interface FAQ {
     id: string;
-    name: string;
-    description: string;
-    users: number;
-    isSystem: boolean;
+    question: string;
+    answer: string;
+    category: string;
+    status: 'published' | 'draft';
+    order: number;
 }
 
-const rolesData: RoleItem[] = [
-    { id: '1', name: 'Super Admin', description: 'Full access to all system modules and settings', users: 2, isSystem: true },
-    { id: '2', name: 'Admin', description: 'Access to most modules, cannot manage system settings', users: 5, isSystem: false },
-    { id: '3', name: 'Manager', description: 'Can view and approve requests', users: 12, isSystem: false },
-    { id: '4', name: 'Support Agent', description: 'Can view and respond to tickets', users: 24, isSystem: false },
-    { id: '5', name: 'Viewer', description: 'Read-only access to basic data', users: 8, isSystem: false },
-    { id: '6', name: 'Editor', description: 'Can create and edit content', users: 15, isSystem: false },
-    { id: '7', name: 'Moderator', description: 'Can moderate user content and comments', users: 7, isSystem: false },
-    { id: '8', name: 'Analyst', description: 'Can view analytics and generate reports', users: 10, isSystem: false },
+// Mock data
+const faqsData: FAQ[] = [
+    {
+        id: '1',
+        question: 'How do I create a new subscription?',
+        answer: 'Navigate to Subscription menu and click Create Subscription button.',
+        category: 'Subscriptions',
+        status: 'published',
+        order: 1,
+    },
+    {
+        id: '2',
+        question: 'How do I manage user roles?',
+        answer: 'Go to Team > Roles to create and manage user roles and permissions.',
+        category: 'Users',
+        status: 'published',
+        order: 2,
+    },
 ];
 
-export default function RolePage() {
+export default function FAQPage() {
     const navigate = useNavigate();
 
     // Search state
@@ -43,7 +50,7 @@ export default function RolePage() {
 
     // Delete confirmation state
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-    const [roleToDelete, setRoleToDelete] = useState<string | null>(null);
+    const [faqToDelete, setFaqToDelete] = useState<string | null>(null);
 
     // Pagination state with URL persistence
     const { pageSize, pageIndex, setPageSize, setPageIndex } = usePaginationState({
@@ -59,31 +66,33 @@ export default function RolePage() {
         setDeleteConfirmOpen(true);
     };
 
-    const handleDeleteSingle = (roleId: string) => {
-        setRoleToDelete(roleId);
+    const handleDeleteSingle = (faqId: string) => {
+        setFaqToDelete(faqId);
         setDeleteConfirmOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        if (roleToDelete) {
-            console.log('Deleting role:', roleToDelete);
-            setRoleToDelete(null);
+        if (faqToDelete) {
+            console.log('Deleting FAQ:', faqToDelete);
+            setFaqToDelete(null);
         } else {
-            console.log('Deleting roles:', Object.keys(selectedRows));
+            console.log('Deleting FAQs:', Object.keys(selectedRows));
             setSelectedRows({});
         }
+        setDeleteConfirmOpen(false);
     };
 
-    // Filter roles based on search
-    const filteredRoles = useMemo(() => {
-        return rolesData.filter(
-            (role) => role.name.toLowerCase().includes(search.toLowerCase()) ||
-                role.description.toLowerCase().includes(search.toLowerCase())
+    // Filter FAQs based on search
+    const filteredFAQs = useMemo(() => {
+        return faqsData.filter(
+            (faq) => faq.question.toLowerCase().includes(search.toLowerCase()) ||
+                faq.answer.toLowerCase().includes(search.toLowerCase()) ||
+                faq.category.toLowerCase().includes(search.toLowerCase())
         );
     }, [search]);
 
     // Define columns
-    const columns: ColumnDef<RoleItem>[] = [
+    const columns: ColumnDef<FAQ>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -104,53 +113,58 @@ export default function RolePage() {
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
-                    disabled={row.original.isSystem}
                 />
             ),
             enableSorting: false,
             enableHiding: false,
         },
         {
-            accessorKey: "name",
-            header: "Role Name",
+            accessorKey: "order",
+            header: "Order",
             cell: ({ row }) => {
-                const role = row.original;
                 return (
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full bg-primary/10 text-primary">
-                            <Shield size={16} />
+                    <span className="text-sm font-medium">{row.original.order}</span>
+                );
+            }
+        },
+        {
+            accessorKey: "question",
+            header: "Question",
+            cell: ({ row }) => {
+                const faq = row.original;
+                return (
+                    <div className="flex items-start gap-3 max-w-md">
+                        <div className="p-2 rounded-full bg-primary/10 text-primary flex-shrink-0">
+                            <HelpCircle size={16} />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">{role.name}</span>
-                            {role.isSystem && (
-                                <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
-                                    SYSTEM
-                                </Badge>
-                            )}
+                        <div>
+                            <p className="font-medium text-foreground">{faq.question}</p>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{faq.answer}</p>
                         </div>
                     </div>
                 );
             }
         },
         {
-            accessorKey: "description",
-            header: "Description",
+            accessorKey: "category",
+            header: "Category",
             cell: ({ row }) => {
                 return (
-                    <p className="text-sm text-muted-foreground">{row.original.description}</p>
+                    <Badge variant="outline" className="font-normal">
+                        {row.original.category}
+                    </Badge>
                 );
             }
         },
         {
-            accessorKey: "users",
-            header: () => <div className="text-center">Users</div>,
+            accessorKey: "status",
+            header: "Status",
             cell: ({ row }) => {
+                const status = row.getValue("status") as string;
                 return (
-                    <div className="text-center">
-                        <Badge variant="outline" className="font-normal">
-                            {row.original.users} users
-                        </Badge>
-                    </div>
+                    <Badge variant={status === 'published' ? 'default' : 'secondary'} className="capitalize">
+                        {status}
+                    </Badge>
                 );
             }
         },
@@ -158,11 +172,12 @@ export default function RolePage() {
             id: "actions",
             header: () => <div className="text-right">Actions</div>,
             cell: ({ row }) => {
-                const role = row.original;
+                const faq = row.original;
                 return (
                     <RowActions
-                        onEdit={() => navigate(`/brand/team/role/create?id=${role.id}&action=edit`)}
-                        onDelete={!role.isSystem ? () => handleDeleteSingle(role.id) : undefined}
+                        onEdit={() => navigate(`/owner/faq/create?id=${faq.id}&action=edit`)}
+                        onDelete={() => handleDeleteSingle(faq.id)}
+                        onView={() => navigate(`/owner/faq/create?id=${faq.id}&action=view`)}
                     />
                 );
             },
@@ -173,16 +188,16 @@ export default function RolePage() {
 
     // Get delete confirmation message
     const getDeleteMessage = () => {
-        if (roleToDelete) {
-            const role = rolesData.find(r => r.id === roleToDelete);
+        if (faqToDelete) {
+            const faq = faqsData.find(f => f.id === faqToDelete);
             return {
-                title: 'Delete Role',
-                description: `Are you sure you want to delete ${role?.name}? This action cannot be undone.`,
+                title: 'Delete FAQ',
+                description: `Are you sure you want to delete "${faq?.question}"? This action cannot be undone.`,
             };
         }
         return {
-            title: 'Delete Roles',
-            description: `Are you sure you want to delete ${selectedIds.length} selected role${selectedIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
+            title: 'Delete FAQs',
+            description: `Are you sure you want to delete ${selectedIds.length} selected FAQ${selectedIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
         };
     };
 
@@ -193,7 +208,7 @@ export default function RolePage() {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground">Roles & Permissions</h1>
+                    <h1 className="text-2xl font-semibold text-foreground">FAQ Management</h1>
                 </div>
             </div>
 
@@ -203,13 +218,13 @@ export default function RolePage() {
                 onEntriesChange={setPageSize}
                 searchValue={search}
                 onSearchChange={handleSearchChange}
-                searchPlaceholder="Search roles..."
+                searchPlaceholder="Search FAQs..."
                 showDelete={true}
                 deleteDisabled={selectedIds.length === 0}
                 onDelete={handleDeleteClick}
                 actionButton={{
-                    label: 'Create Role',
-                    onClick: () => navigate('/brand/team/role/create'),
+                    label: 'Create FAQ',
+                    onClick: () => navigate('/owner/faq/create'),
                     icon: <Plus size={18} />,
                 }}
             />
@@ -217,7 +232,7 @@ export default function RolePage() {
             {/* Data Table */}
             <DataTable
                 columns={columns}
-                data={filteredRoles}
+                data={filteredFAQs}
                 rowSelection={selectedRows}
                 onRowSelectionChange={setSelectedRows}
                 showPagination={true}
@@ -231,7 +246,7 @@ export default function RolePage() {
                 open={deleteConfirmOpen}
                 onOpenChange={(open) => {
                     setDeleteConfirmOpen(open);
-                    if (!open) setRoleToDelete(null);
+                    if (!open) setFaqToDelete(null);
                 }}
                 onConfirm={handleConfirmDelete}
                 title={deleteMessage.title}

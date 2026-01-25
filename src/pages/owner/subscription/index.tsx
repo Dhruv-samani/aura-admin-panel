@@ -4,35 +4,45 @@ import { usePaginationState } from '@/hooks/usePaginationState';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Plus,
-    Shield
-} from 'lucide-react';
+import { Plus, Calendar } from 'lucide-react';
 import { TableHeader as TableHeaderComponent, RowActions } from '@/components/table';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
-interface RoleItem {
+interface Subscription {
     id: string;
-    name: string;
+    title: string;
+    subtitle: string;
     description: string;
-    users: number;
-    isSystem: boolean;
+    startDate: string;
+    endDate: string;
+    status: 'active' | 'inactive';
 }
 
-const rolesData: RoleItem[] = [
-    { id: '1', name: 'Super Admin', description: 'Full access to all system modules and settings', users: 2, isSystem: true },
-    { id: '2', name: 'Admin', description: 'Access to most modules, cannot manage system settings', users: 5, isSystem: false },
-    { id: '3', name: 'Manager', description: 'Can view and approve requests', users: 12, isSystem: false },
-    { id: '4', name: 'Support Agent', description: 'Can view and respond to tickets', users: 24, isSystem: false },
-    { id: '5', name: 'Viewer', description: 'Read-only access to basic data', users: 8, isSystem: false },
-    { id: '6', name: 'Editor', description: 'Can create and edit content', users: 15, isSystem: false },
-    { id: '7', name: 'Moderator', description: 'Can moderate user content and comments', users: 7, isSystem: false },
-    { id: '8', name: 'Analyst', description: 'Can view analytics and generate reports', users: 10, isSystem: false },
+// Mock data
+const subscriptionsData: Subscription[] = [
+    {
+        id: '1',
+        title: 'Premium Plan',
+        subtitle: 'Best value for businesses',
+        description: 'Full access to all features',
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'active'
+    },
+    {
+        id: '2',
+        title: 'Basic Plan',
+        subtitle: 'Perfect for startups',
+        description: 'Essential features included',
+        startDate: '2024-02-01',
+        endDate: '2024-12-31',
+        status: 'active'
+    },
 ];
 
-export default function RolePage() {
+export default function SubscriptionPage() {
     const navigate = useNavigate();
 
     // Search state
@@ -43,7 +53,7 @@ export default function RolePage() {
 
     // Delete confirmation state
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-    const [roleToDelete, setRoleToDelete] = useState<string | null>(null);
+    const [subscriptionToDelete, setSubscriptionToDelete] = useState<string | null>(null);
 
     // Pagination state with URL persistence
     const { pageSize, pageIndex, setPageSize, setPageIndex } = usePaginationState({
@@ -59,31 +69,32 @@ export default function RolePage() {
         setDeleteConfirmOpen(true);
     };
 
-    const handleDeleteSingle = (roleId: string) => {
-        setRoleToDelete(roleId);
+    const handleDeleteSingle = (subscriptionId: string) => {
+        setSubscriptionToDelete(subscriptionId);
         setDeleteConfirmOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        if (roleToDelete) {
-            console.log('Deleting role:', roleToDelete);
-            setRoleToDelete(null);
+        if (subscriptionToDelete) {
+            console.log('Deleting subscription:', subscriptionToDelete);
+            setSubscriptionToDelete(null);
         } else {
-            console.log('Deleting roles:', Object.keys(selectedRows));
+            console.log('Deleting subscriptions:', Object.keys(selectedRows));
             setSelectedRows({});
         }
+        setDeleteConfirmOpen(false);
     };
 
-    // Filter roles based on search
-    const filteredRoles = useMemo(() => {
-        return rolesData.filter(
-            (role) => role.name.toLowerCase().includes(search.toLowerCase()) ||
-                role.description.toLowerCase().includes(search.toLowerCase())
+    // Filter subscriptions based on search
+    const filteredSubscriptions = useMemo(() => {
+        return subscriptionsData.filter(
+            (sub) => sub.title.toLowerCase().includes(search.toLowerCase()) ||
+                sub.subtitle.toLowerCase().includes(search.toLowerCase())
         );
     }, [search]);
 
     // Define columns
-    const columns: ColumnDef<RoleItem>[] = [
+    const columns: ColumnDef<Subscription>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -104,29 +115,24 @@ export default function RolePage() {
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
-                    disabled={row.original.isSystem}
                 />
             ),
             enableSorting: false,
             enableHiding: false,
         },
         {
-            accessorKey: "name",
-            header: "Role Name",
+            accessorKey: "title",
+            header: "Title",
             cell: ({ row }) => {
-                const role = row.original;
+                const subscription = row.original;
                 return (
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-full bg-primary/10 text-primary">
-                            <Shield size={16} />
+                            <Calendar size={16} />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">{role.name}</span>
-                            {role.isSystem && (
-                                <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
-                                    SYSTEM
-                                </Badge>
-                            )}
+                        <div>
+                            <p className="font-medium text-foreground">{subscription.title}</p>
+                            <p className="text-xs text-muted-foreground">{subscription.subtitle}</p>
                         </div>
                     </div>
                 );
@@ -137,20 +143,37 @@ export default function RolePage() {
             header: "Description",
             cell: ({ row }) => {
                 return (
-                    <p className="text-sm text-muted-foreground">{row.original.description}</p>
+                    <p className="text-sm text-muted-foreground max-w-xs truncate">{row.original.description}</p>
                 );
             }
         },
         {
-            accessorKey: "users",
-            header: () => <div className="text-center">Users</div>,
+            accessorKey: "startDate",
+            header: "Start Date",
             cell: ({ row }) => {
                 return (
-                    <div className="text-center">
-                        <Badge variant="outline" className="font-normal">
-                            {row.original.users} users
-                        </Badge>
-                    </div>
+                    <span className="text-sm">{new Date(row.original.startDate).toLocaleDateString()}</span>
+                );
+            }
+        },
+        {
+            accessorKey: "endDate",
+            header: "End Date",
+            cell: ({ row }) => {
+                return (
+                    <span className="text-sm">{new Date(row.original.endDate).toLocaleDateString()}</span>
+                );
+            }
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const status = row.getValue("status") as string;
+                return (
+                    <Badge variant={status === 'active' ? 'default' : 'secondary'} className="capitalize">
+                        {status}
+                    </Badge>
                 );
             }
         },
@@ -158,11 +181,12 @@ export default function RolePage() {
             id: "actions",
             header: () => <div className="text-right">Actions</div>,
             cell: ({ row }) => {
-                const role = row.original;
+                const subscription = row.original;
                 return (
                     <RowActions
-                        onEdit={() => navigate(`/brand/team/role/create?id=${role.id}&action=edit`)}
-                        onDelete={!role.isSystem ? () => handleDeleteSingle(role.id) : undefined}
+                        onEdit={() => navigate(`/owner/subscription/create?id=${subscription.id}&action=edit`)}
+                        onDelete={() => handleDeleteSingle(subscription.id)}
+                        onView={() => navigate(`/owner/subscription/create?id=${subscription.id}&action=view`)}
                     />
                 );
             },
@@ -173,16 +197,16 @@ export default function RolePage() {
 
     // Get delete confirmation message
     const getDeleteMessage = () => {
-        if (roleToDelete) {
-            const role = rolesData.find(r => r.id === roleToDelete);
+        if (subscriptionToDelete) {
+            const subscription = subscriptionsData.find(s => s.id === subscriptionToDelete);
             return {
-                title: 'Delete Role',
-                description: `Are you sure you want to delete ${role?.name}? This action cannot be undone.`,
+                title: 'Delete Subscription',
+                description: `Are you sure you want to delete ${subscription?.title}? This action cannot be undone.`,
             };
         }
         return {
-            title: 'Delete Roles',
-            description: `Are you sure you want to delete ${selectedIds.length} selected role${selectedIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
+            title: 'Delete Subscriptions',
+            description: `Are you sure you want to delete ${selectedIds.length} selected subscription${selectedIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
         };
     };
 
@@ -193,7 +217,7 @@ export default function RolePage() {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground">Roles & Permissions</h1>
+                    <h1 className="text-2xl font-semibold text-foreground">Subscription Management</h1>
                 </div>
             </div>
 
@@ -203,13 +227,13 @@ export default function RolePage() {
                 onEntriesChange={setPageSize}
                 searchValue={search}
                 onSearchChange={handleSearchChange}
-                searchPlaceholder="Search roles..."
+                searchPlaceholder="Search subscriptions..."
                 showDelete={true}
                 deleteDisabled={selectedIds.length === 0}
                 onDelete={handleDeleteClick}
                 actionButton={{
-                    label: 'Create Role',
-                    onClick: () => navigate('/brand/team/role/create'),
+                    label: 'Create Subscription',
+                    onClick: () => navigate('/owner/subscription/create'),
                     icon: <Plus size={18} />,
                 }}
             />
@@ -217,7 +241,7 @@ export default function RolePage() {
             {/* Data Table */}
             <DataTable
                 columns={columns}
-                data={filteredRoles}
+                data={filteredSubscriptions}
                 rowSelection={selectedRows}
                 onRowSelectionChange={setSelectedRows}
                 showPagination={true}
@@ -231,7 +255,7 @@ export default function RolePage() {
                 open={deleteConfirmOpen}
                 onOpenChange={(open) => {
                     setDeleteConfirmOpen(open);
-                    if (!open) setRoleToDelete(null);
+                    if (!open) setSubscriptionToDelete(null);
                 }}
                 onConfirm={handleConfirmDelete}
                 title={deleteMessage.title}

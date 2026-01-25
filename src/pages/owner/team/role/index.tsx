@@ -32,7 +32,7 @@ const rolesData: RoleItem[] = [
     { id: '8', name: 'Analyst', description: 'Can view analytics and generate reports', users: 10, isSystem: false },
 ];
 
-export default function RolePage() {
+export default function OwnerRolePage() {
     const navigate = useNavigate();
 
     // Search state
@@ -161,7 +161,7 @@ export default function RolePage() {
                 const role = row.original;
                 return (
                     <RowActions
-                        onEdit={() => navigate(`/brand/team/role/create?id=${role.id}&action=edit`)}
+                        onEdit={() => navigate(`/owner/team/role/create?id=${role.id}&action=edit`)}
                         onDelete={!role.isSystem ? () => handleDeleteSingle(role.id) : undefined}
                     />
                 );
@@ -209,7 +209,7 @@ export default function RolePage() {
                 onDelete={handleDeleteClick}
                 actionButton={{
                     label: 'Create Role',
-                    onClick: () => navigate('/brand/team/role/create'),
+                    onClick: () => navigate('/owner/team/role/create'),
                     icon: <Plus size={18} />,
                 }}
             />

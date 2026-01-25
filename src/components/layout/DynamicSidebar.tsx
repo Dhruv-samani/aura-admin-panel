@@ -35,6 +35,23 @@ export function DynamicSidebar() {
         );
     };
 
+    React.useEffect(() => {
+        modules.forEach(module => {
+            if (module.children) {
+                const isActiveChild = module.children.some(child =>
+                    location.pathname === child.path || location.pathname.startsWith(`${child.path}/`)
+                );
+
+                if (isActiveChild) {
+                    setOpenMenus(prev => {
+                        if (prev.includes(module.id)) return prev;
+                        return [...prev, module.id];
+                    });
+                }
+            }
+        });
+    }, [location.pathname, modules]);
+
     // Get icon component from string name
     const getIcon = (iconName: string): React.ReactNode => {
         const IconComponent = Icons[iconName as keyof typeof Icons] as LucideIcon | undefined;

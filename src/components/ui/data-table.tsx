@@ -46,6 +46,9 @@ interface DataTableProps<TData, TValue> {
     currentPage?: number; // Current page number (1-indexed)
     totalPages?: number; // Total number of pages
     onPageChange?: (page: number) => void; // Callback when page changes
+    // Client-side pagination control
+    initialPageIndex?: number; // Initial page index (0-indexed)
+    onPageIndexChange?: (pageIndex: number) => void; // Callback when page index changes (0-indexed)
 }
 
 export function DataTable<TData, TValue>({
@@ -63,6 +66,8 @@ export function DataTable<TData, TValue>({
     currentPage,
     totalPages,
     onPageChange,
+    initialPageIndex = 0,
+    onPageIndexChange,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -70,7 +75,7 @@ export function DataTable<TData, TValue>({
 
     // Internal pagination state
     const [pagination, setPagination] = useState({
-        pageIndex: 0,
+        pageIndex: initialPageIndex,
         pageSize: pageSize,
     });
 
@@ -88,6 +93,18 @@ export function DataTable<TData, TValue>({
             setPagination(prev => ({ ...prev, pageIndex: 0 }));
         }
     }, [searchKey, searchValue]);
+
+    // Update pagination when pageSize prop changes
+    React.useEffect(() => {
+        setPagination(prev => ({ ...prev, pageSize: pageSize }));
+    }, [pageSize]);
+
+    // Notify parent when page index changes (for client-side pagination)
+    React.useEffect(() => {
+        if (onPageIndexChange && !currentPage) {
+            onPageIndexChange(pagination.pageIndex);
+        }
+    }, [pagination.pageIndex, onPageIndexChange, currentPage]);
 
     const table = useReactTable({
         data,

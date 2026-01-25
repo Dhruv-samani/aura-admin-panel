@@ -35,6 +35,7 @@ export const PERMISSIONS = {
   AGENCY_SETTINGS_VIEW: 'agency:settings:view',
   AGENCY_SETTINGS_EDIT: 'agency:settings:edit',
   AGENCY_WHITELABEL_MANAGE: 'agency:whitelabel:manage',
+
   AGENCY_TEAM_VIEW: 'agency:team:view',
   AGENCY_TEAM_MANAGE: 'agency:team:manage',
   AGENCY_BILLING_VIEW: 'agency:billing:view',
@@ -45,6 +46,9 @@ export const PERMISSIONS = {
   // Owner permissions
   OWNER_FULL_ACCESS: 'owner:*',
   OWNER_DASHBOARD_VIEW: 'owner:dashboard:view',
+
+  OWNER_TEAM_VIEW: 'owner:team:view',
+  OWNER_TEAM_MANAGE: 'owner:team:manage',
   OWNER_AGENCIES_VIEW: 'owner:agencies:view',
   OWNER_AGENCIES_MANAGE: 'owner:agencies:manage',
   OWNER_AGENCIES_SUSPEND: 'owner:agencies:suspend',

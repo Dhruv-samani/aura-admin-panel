@@ -88,11 +88,27 @@ export function SpotlightSearch() {
       { id: 'palette-violet', label: 'Set Violet Palette', icon: <Palette size={18} />, type: 'action', action: () => setPalette('violet') },
     ];
 
-    // Add admin-type specific actions
-    if (user?.adminType === 'brand') {
+    // Add admin-type specific create actions
+    const adminType = user?.adminType;
+
+    if (adminType === 'owner') {
       actions.push(
-        { id: 'add-user', label: 'Add New User', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/users/create') },
-        { id: 'create-role', label: 'Create Role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/roles/create') },
+        { id: 'create-user', label: 'Create User', description: 'Add a new user', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/team/user/create') },
+        { id: 'create-role', label: 'Create Role', description: 'Create a new role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/team/role/create') },
+        { id: 'create-subscription', label: 'Create Subscription', description: 'Add a new subscription plan', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/subscription/create') },
+        { id: 'create-coupon', label: 'Create Coupon', description: 'Generate a new coupon', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/coupon/create') },
+        { id: 'create-faq', label: 'Create FAQ', description: 'Add a new FAQ', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/faq/create') },
+        { id: 'create-master', label: 'Create Master Data', description: 'Add master data item', icon: <Plus size={18} />, type: 'action', action: () => navigate('/owner/master/create') },
+      );
+    } else if (adminType === 'brand') {
+      actions.push(
+        { id: 'create-user', label: 'Create User', description: 'Add a new user', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/user/create') },
+        { id: 'create-role', label: 'Create Role', description: 'Create a new role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/brand/team/role/create') },
+      );
+    } else if (adminType === 'agency') {
+      actions.push(
+        { id: 'create-user', label: 'Create User', description: 'Add a new user', icon: <Plus size={18} />, type: 'action', action: () => navigate('/agency/team/user/create') },
+        { id: 'create-role', label: 'Create Role', description: 'Create a new role', icon: <Plus size={18} />, type: 'action', action: () => navigate('/agency/team/role/create') },
       );
     }
 

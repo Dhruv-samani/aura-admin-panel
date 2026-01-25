@@ -141,7 +141,7 @@ export function AppHeader() {
             <DropdownMenuContent align={isRtl ? 'start' : 'end'} className="w-48">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout} className="text-destructive">

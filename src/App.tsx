@@ -16,6 +16,7 @@ import Login from "@/pages/auth/login";
 import Signup from "@/pages/auth/signup";
 import ForgotPassword from "@/pages/auth/forgot-password";
 import ResetPassword from "@/pages/auth/reset-password";
+import ProfilePage from "@/pages/profile";
 import NotFound from "@/pages/NotFound";
 import { AutoRoutes } from "@/components/routing/AutoRoutes";
 
@@ -69,6 +70,9 @@ const App = () => (
 
                       {/* Component Showcase */}
                       <Route path="/components" element={<ComponentShowcase />} />
+
+                      {/* Profile - Accessible to all authenticated users */}
+                      <Route path="/profile" element={<ProfilePage />} />
 
                       {/* Global Settings */}
                       <Route path="/settings" element={<Settings />} />

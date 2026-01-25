@@ -25,7 +25,7 @@ import { userService, type User } from '@/services/userService';
 import { DataTable, BulkAction } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
-export default function UserPage() {
+export default function OwnerUserPage() {
     const navigate = useNavigate();
 
     // Users state
@@ -183,9 +183,9 @@ export default function UserPage() {
                 const user = row.original;
                 return (
                     <RowActions
-                        onEdit={() => navigate(`/brand/team/user/create?id=${user.id}&action=edit`)}
+                        onEdit={() => navigate(`/owner/team/user/create?id=${user.id}&action=edit`)}
                         onDelete={() => handleDeleteSingle(user.id)}
-                        onView={() => navigate(`/brand/team/user/create?id=${user.id}&action=view`)}
+                        onView={() => navigate(`/owner/team/user/create?id=${user.id}&action=view`)}
                     />
                 );
             },
@@ -256,7 +256,7 @@ export default function UserPage() {
                 onDelete={handleDeleteClick}
                 actionButton={{
                     label: 'Add User',
-                    onClick: () => navigate('/brand/team/user/create'),
+                    onClick: () => navigate('/owner/team/user/create'),
                     icon: <Plus size={18} />,
                 }}
             />
